@@ -23,36 +23,49 @@
         <div class="row">
             <form class="form" action="/createLib" method="POST" >
                 @csrf
+            <input type="hidden" name="id" value="{{$lib->id}}">
                 <div class="input-group mb-3">
-                    <input type="text" class="form-control" name="name" placeholder="name" aria-label="name" aria-describedby="basic-addon1">
+                    <input type="text" class="form-control" name="name" placeholder="name" aria-label="name" aria-describedby="basic-addon1" value="{{$lib->name}}">
                   </div>                  
                   <div class="input-group">
                     <div class="input-group-prepend">
                       <span class="input-group-text">Description</span>
                     </div>
-                    <textarea class="form-control" name="description" aria-label="With textarea"></textarea>
+                <textarea class="form-control" name="description" aria-label="With textarea">{{$lib->description}}</textarea>
                   </div>
                   <div class="from-group">
                   <div class="dropzone" id="my-dropzone"></div>
                   </div>
                   <input type="submit" class="btn btn-success">
+                @foreach ($lib->images as $image)
+                <input type="hidden" name="images[]" value="{{$image->file_name}}">
+                @endforeach
             </form>
         </div>
     </div>
     <script>
+        var thisDropzone = null;
         Dropzone.options.myDropzone = {
             url:"/saveImage",
                 addRemoveLinks: true,
                 maxFiles:3,
+                
             init: function() {
                 
                 thisDropzone = this;
                 this.on("removedfile", function (file) {
-                    $($("form >input[value='"+file.xhr.response+"']")[0]).remove();
-                    console.log(file.xhr.response);
+                    
+                    let f;
+                    if(file.xhr){
+                        f = file.xhr.response;
+                    }else{
+                        f = file.name;
+                    }                    
+                    $($("form >input[value='"+f+"']")[0]).remove();
+                    // console.log(file.xhr.response);
                     $.post({
                         url: '/deleteImage',
-                        data: {id: file.name, _token: "{{ csrf_token() }}"},
+                        data: {id: $("form>input[name='id']").val(),name: file.name, _token: "{{ csrf_token() }}"},
                         dataType: 'json',
                         success: function (data) {
                             console.log('file deleted');
@@ -66,8 +79,25 @@
             },
             sending: function(file, xhr, formData) {
                 formData.append("_token", "{{ csrf_token() }}");
+                formData.append("id",$("form>input[name='id']").val());
             },
         };
-        </script>
+        var mockFile = [
+            @foreach($lib->images as $image)
+            {name:"{{$image->file_name}}"},
+
+            @endforeach
+        ];
+        $( document ).ready(function() {
+            mockFile.forEach(element => {
+                thisDropzone.emit("addedfile", element);
+                thisDropzone.emit("thumbnail", element,element.name);
+                thisDropzone.emit("complete", element);
+            });
+        });
+        // 
+        
+       
+        </script> 
     </body>
 </html>

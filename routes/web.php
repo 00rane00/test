@@ -11,13 +11,10 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', "ImageController@list");
+Route::get('/show/{lib_id}', "ImageController@show")->name('show');
 
 Route::post('/createLib',"ImageController@createLib");
 Route::post('/saveImage',"ImageController@saveImage");
 
-Route::post('/deleteImage',function(){
-    return response()->json(['message'=>"done","status"=>"ok"]);
-    });
+Route::post('/deleteImage',"ImageController@deleteImage");
