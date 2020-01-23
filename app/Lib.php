@@ -12,4 +12,8 @@ class Lib extends Model
         "name",
         "description"
     ];
+
+    public function images(){
+        return $this->hasMany(Image::class,"lib_id","id");
+    }
 }

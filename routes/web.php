@@ -15,7 +15,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::post('/',"ImageController@saveImage");
+Route::post('/createLib',"ImageController@createLib");
+Route::post('/saveImage',"ImageController@saveImage");
 
 Route::post('/deleteImage',function(){
     return response()->json(['message'=>"done","status"=>"ok"]);

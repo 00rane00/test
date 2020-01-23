@@ -14,69 +14,55 @@
         <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet">
     </head>
     <body>
-      <div class="container">
+      <div class="container" style="margin-top: 50px;">
+        @if (session('status'))
+    <div class="alert alert-success">
+        {{ session('status') }}
+    </div>
+@endif
         <div class="row">
-            <form action="/" method="POST" >
+            <form class="form" action="/createLib" method="POST" >
+                @csrf
                 <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
-                  </div>
-                  
-                  <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="basic-addon2">
-                    <div class="input-group-append">
-                      <span class="input-group-text" id="basic-addon2">@example.com</span>
-                    </div>
-                  </div>
-                  
-                  <label for="basic-url">Your vanity URL</label>
-                  <div class="input-group mb-3">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text" id="basic-addon3">https://example.com/users/</span>
-                    </div>
-                    <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3">
-                  </div>
-                  
-                  <div class="input-group mb-3">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text">$</span>
-                    </div>
-                    <input type="text" class="form-control" aria-label="Amount (to the nearest dollar)">
-                    <div class="input-group-append">
-                      <span class="input-group-text">.00</span>
-                    </div>
-                  </div>
-                  
+                    <input type="text" class="form-control" name="name" placeholder="name" aria-label="name" aria-describedby="basic-addon1">
+                  </div>                  
                   <div class="input-group">
                     <div class="input-group-prepend">
-                      <span class="input-group-text">With textarea</span>
+                      <span class="input-group-text">Description</span>
                     </div>
-                    <textarea class="form-control" aria-label="With textarea"></textarea>
+                    <textarea class="form-control" name="description" aria-label="With textarea"></textarea>
                   </div>
+                  <div class="from-group">
                   <div class="dropzone" id="my-dropzone"></div>
+                  </div>
+                  <input type="submit" class="btn btn-success">
             </form>
         </div>
     </div>
     <script>
         Dropzone.options.myDropzone = {
-            url:"/",
+            url:"/saveImage",
                 addRemoveLinks: true,
                 maxFiles:3,
             init: function() {
+                
                 thisDropzone = this;
                 this.on("removedfile", function (file) {
+                    $($("form >input[value='"+file.xhr.response+"']")[0]).remove();
+                    console.log(file.xhr.response);
                     $.post({
                         url: '/deleteImage',
                         data: {id: file.name, _token: "{{ csrf_token() }}"},
                         dataType: 'json',
                         success: function (data) {
-                            $("#counter").text();
-                        }
+                            console.log('file deleted');
+                      }
                     });
                 });
             },
             success: function (file, done) {
-                console.log(file);
-                $("form").append("<input type='hidden' name='images[]' value='"+file+"'/>");
+                // console.log(file.xhr);
+                $("form").append("<input type='hidden' name='images[]' value='"+file.xhr.response+"'/>");
             },
             sending: function(file, xhr, formData) {
                 formData.append("_token", "{{ csrf_token() }}");
